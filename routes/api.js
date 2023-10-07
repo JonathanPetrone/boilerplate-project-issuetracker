@@ -34,6 +34,11 @@ module.exports = function (app) {
     .post(async function (req, res){
       let project = req.params.project;
 
+      if (!issue_title || !issue_text || created_by) {
+        res.json({ error: "required field(s) missing"});
+        return;
+      }
+
       const { issue_title, issue_text, created_on, updated_on, created_by, assigned_to, open, status_text } = req.body
 
       const issueObj = new Issue ({
@@ -46,7 +51,6 @@ module.exports = function (app) {
         open: true, 
         status_text
       })
-
       
       try {
       const insertIssue = await issueObj.save()
