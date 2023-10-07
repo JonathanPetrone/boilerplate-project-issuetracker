@@ -19,6 +19,8 @@ const issueSchema = new Schema({
   status_text: String, 
 });
 
+const Issue = mongoose.model("Issue", issueSchema);
+
 module.exports = function (app) {
 
   app.route('/api/issues/:project')
@@ -35,14 +37,22 @@ module.exports = function (app) {
     .post(async function (req, res){
       let project = req.params.project;
 
-      const issue = {
-        name: "my issue",
-        number: 1
-      }
+      const { issue_title, issue_text, created_on, updated_on, created_by, assigned_to, open, status_text } = req.body
 
-      const insertURL = await issues.insertOne(issue)
-      insertURL()
-      res.json({ issue })
+      const issueObj = new Issue ({
+        issue_title,
+        issue_text,
+        created_on: new Date(),
+        updated_on,
+        created_by, 
+        assigned_to,
+        open: true, 
+        status_text
+      })
+
+      const insertIssue = await issues.insertOne(issue)
+      insertIssue()
+      res.json({ inserted: "success" })
 
       // post a new entry of an issue
 
