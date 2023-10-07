@@ -1,10 +1,7 @@
 'use strict';
-const mongoose = require("mongoose");
-const { MongoClient } = require('mongodb');
-mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true })
-const client = new MongoClient(process.env.DATABASE_URL)
-const database = client.db("issuetracker")
-const issues = database.collection("issues")
+const mongoose = require('mongoose');
+mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+
 
 const Schema = mongoose.Schema;
 
@@ -16,10 +13,10 @@ const issueSchema = new Schema({
   created_by: { type: String, required: true },
   assigned_to: String,
   open: Boolean,
-  status_text: String, 
+  status_text: String,
 });
 
-const Issue = mongoose.model("Issue", issueSchema);
+const Issue = mongoose.model('Issue', issueSchema);
 
 module.exports = function (app) {
 
@@ -50,15 +47,23 @@ module.exports = function (app) {
         status_text
       })
 
-      const insertIssue = await issues.insertOne(issue)
-      insertIssue()
-      res.json({ inserted: "success" })
-
-      // post a new entry of an issue
-
-      // need connection to a database
-      // need to define a schema 
-
+      
+      try {
+      const insertIssue = await issueObj.save()
+      res.json({
+        issue_title: insertIssue.issue_title,
+        issue_text: insertIssue.issue_text,
+        created_on: new Date(),
+        updated_on: insertIssue.updated_on,
+        created_by: insertIssue.created_by,
+        assigned_to: insertIssue.assigned_to,
+        open: true, 
+        status_text: insertIssue.status_text
+      })
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Server error' });
+    }
       
     })
     
