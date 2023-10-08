@@ -76,11 +76,6 @@ module.exports = function (app) {
           res.json([]);
         }
     })
-      
-      
-      // list of all issues saved in a project
-
-    
     
     .post(async function (req, res){
       let project = req.params.project;
@@ -130,19 +125,42 @@ module.exports = function (app) {
     
     .delete(async function (req, res){
       let project = req.params.project;
-
+      const issueId = req.params.id;
       const {_id} = req.body;
-
       console.log(_id);
 
       if (!_id){
         return res.status(404).json({ error: 'missing _id' }); 
       }
 
-      res.json({
-        status: "found issue",
-        _id: _id
-      });
+      try {
+        const findProject = await Project.findOne({ name: project }).exec();
+        if (!findProject) {
+          return res.status(404).json({ error: 'Project not found' });
+        } else {
+          console.log("project found")
+          //console.log(findProject)
+        }
+
+        // Locate the specific document within the array
+        const issueToDelete = findProject.issues.find(issue => issue._id.toString() === _id);
+
+        if (!issueToDelete) {
+          return res.status(404).json({ error: 'Issue not found' });
+        }
+
+        // Remove the document from the array
+        findProject.issues.pull({ _id: issueToDelete._id });
+
+        // Save the parent document to apply the changes
+        await findProject.save();
+
+        res.send({ message: 'Issue deleted successfully'});
+
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while deleting the document' });
+      }
       /* if (!findIssue) {
       return res.status(404).json({ error: 'could not delete', '_id': _id });
     } */
