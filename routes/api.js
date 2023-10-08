@@ -139,14 +139,13 @@ module.exports = function (app) {
           return res.status(404).json({ error: 'Project not found' });
         } else {
           console.log("project found")
-          //console.log(findProject)
         }
 
         // Locate the specific document within the array
         const issueToDelete = findProject.issues.find(issue => issue._id.toString() === _id);
 
         if (!issueToDelete) {
-          return res.status(404).json({ error: 'Issue not found' });
+          return res.send({ error: 'could not delete', '_id': _id });
         }
 
         // Remove the document from the array
@@ -155,15 +154,12 @@ module.exports = function (app) {
         // Save the parent document to apply the changes
         await findProject.save();
 
-        res.send({ message: 'Issue deleted successfully'});
+        res.send({ result: 'successfully deleted', '_id': _id });
 
       } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'An error occurred while deleting the document' });
+        res.send({ error: 'could not delete', '_id': _id });
       }
-      /* if (!findIssue) {
-      return res.status(404).json({ error: 'could not delete', '_id': _id });
-    } */
 
       // delete a post based on id & project provided
       
