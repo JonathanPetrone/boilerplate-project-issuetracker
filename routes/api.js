@@ -18,14 +18,20 @@ const issueSchema = new Schema({
 
 const Issue = mongoose.model('Issue', issueSchema);
 
+const ProjectSchema = new Schema({
+  name: { type: String, required: true },
+  issues: [issueSchema],
+})
+
+const Project = mongoose.model("Project", ProjectSchema)
+
 module.exports = function (app) {
 
   app.route('/api/issues/:project')
   
     .get(function (req, res){
       let project = req.params.project;
-
-      res.json({"res": project})
+      
       
       // list of all issues saved in a project
 
@@ -34,12 +40,12 @@ module.exports = function (app) {
     .post(async function (req, res){
       let project = req.params.project;
 
-      if (!issue_title || !issue_text || created_by) {
+      const { issue_title, issue_text, created_on, updated_on, created_by, assigned_to, open, status_text } = req.body
+      
+      if (!issue_title || !issue_text || !created_by) {
         res.json({ error: "required field(s) missing"});
         return;
       }
-
-      const { issue_title, issue_text, created_on, updated_on, created_by, assigned_to, open, status_text } = req.body
 
       const issueObj = new Issue ({
         issue_title,
@@ -50,25 +56,24 @@ module.exports = function (app) {
         assigned_to,
         open: true, 
         status_text
-      })
+      });
       
       try {
-      const insertIssue = await issueObj.save()
-      res.json({
-        issue_title: insertIssue.issue_title,
-        issue_text: insertIssue.issue_text,
-        created_on: new Date(),
-        updated_on: insertIssue.updated_on,
-        created_by: insertIssue.created_by,
-        assigned_to: insertIssue.assigned_to,
-        open: true, 
-        status_text: insertIssue.status_text
-      })
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Server error' });
-    }
-      
+        const projectdata = await Project.findOne({ name: project }).exec();
+        if(!projectdata) {
+          const newProject = new Project({ name: project});
+          newProject.issues.push(issueObj);
+          await newProject.save();
+          res.json(issueObj);
+        } else {
+          projectdata.issues.push(issueObj);
+          await projectdata.save();
+          res.json(issueObj);
+        }
+      } catch (error) {
+        console.error("Error saving new project:", error);
+        res.status(500).json({ error: "An error occurred while saving the project" });
+      }
     })
     
     .put(function (req, res){
@@ -78,11 +83,26 @@ module.exports = function (app) {
       
     })
     
-    .delete(function (req, res){
+    .delete(async function (req, res){
       let project = req.params.project;
+
+      const {_id} = req.body;
+
+      console.log(_id);
+
+      if (!_id){
+        return res.status(404).json({ error: 'missing _id' }); 
+      }
+
+      res.json({
+        status: "found issue",
+        _id: _id
+      });
+      /* if (!findIssue) {
+      return res.status(404).json({ error: 'could not delete', '_id': _id });
+    } */
 
       // delete a post based on id & project provided
       
-    });
-    
+    });  
 };
