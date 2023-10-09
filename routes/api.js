@@ -91,7 +91,7 @@ module.exports = function (app) {
         issue_title,
         issue_text,
         created_on: new Date(),
-        updated_on,
+        updated_on: new Date(),
         created_by, 
         assigned_to,
         open: true, 
@@ -116,8 +116,56 @@ module.exports = function (app) {
       }
     })
     
-    .put(function (req, res){
+    .put(async function (req, res){
       let project = req.params.project;
+
+      const {
+        _id,
+        issue_title,
+        issue_text,
+        created_by,
+        assigned_to,
+        status_text,
+        open,
+      } = req.body
+
+      if (!_id) {
+        res.json( { error: "missing _id"});
+        return;
+      }
+
+      if (!issue_title && !issue_text && !created_by && !assigned_to && !status_text && !open) {
+        res.json({ error: "no update field(s) sent", _id: _id})
+        return;
+      }
+      const projectdata = await Project.findOne({ name: project }).exec();
+      if(!projectdata) {
+        res.json({ error: "could not update", _id: _id})
+        return;
+      } else {
+        const issueData = projectdata.issues.id(_id);
+        if (!issueData) {
+          res.json({ error: "could not update", _id: _id})
+          return;
+        }
+        issueData.issue_title = issue_title || issueData.issue_title;
+        issueData.issue_text = issue_text || issueData.issue_text;
+        issueData.created_by = created_by || issueData.created_by;
+        issueData.assigned_to = assigned_to || issueData.assigned_to;
+        issueData.status_text = status_text || issueData.status_text;
+        issueData.updated_on = new Date();
+        issueData.open = open;
+
+        try {
+          await projectdata.save()
+          res.json({ result:"successfully updated", _id: _id});
+          return;
+        } catch (err){
+          res.json({ error: "could not update 1", _id: _id});
+          return;
+        }
+        
+      } 
 
       // change a post based on id & project provided
       
