@@ -161,10 +161,9 @@ module.exports = function (app) {
           res.json({ result:"successfully updated", _id: _id});
           return;
         } catch (err){
-          res.json({ error: "could not update 1", _id: _id});
+          res.json({ error: "could not update", _id: _id});
           return;
         }
-        
       } 
 
       // change a post based on id & project provided
@@ -178,13 +177,13 @@ module.exports = function (app) {
       console.log(_id);
 
       if (!_id){
-        return res.status(404).json({ error: 'missing _id' }); 
+        return res.status(200).json({ error: 'missing _id' }); 
       }
 
       try {
         const findProject = await Project.findOne({ name: project }).exec();
         if (!findProject) {
-          return res.status(404).json({ error: 'Project not found' });
+          return res.status(200).json({ error: 'Project not found' });
         } else {
           console.log("project found")
         }

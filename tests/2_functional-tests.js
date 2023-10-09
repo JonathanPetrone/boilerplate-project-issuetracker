@@ -71,205 +71,193 @@ suite('Functional Tests', function() {
 
     suite('GET-method', function() {
         test("View issues on a project: GET request to /api/issues/{project}", function (done){
-            /*chai
+            chai
             .request(server)
-            .post("/api/issues/projects")
-            .set("content-type", "application/json")
-            .send({
-                issue_text: "Issue text",
-                created_by: "Test user"
-            })
+            .get("/api/issues/projects")
             .end(function (err, res){
                 assert.equal(res.status, 200);
-                //deleteId = res.body._id;
-                assert.equal(res.body.error, "required field(s) missing");
+                assert.isAtLeast(res.body.length, 1,  "required field(s) missing");
                 done();
-            }) */
-            assert.fail();
+            })
+
         })
 
         test("View issues on a project with one filter: GET request to /api/issues/{project}", function (done){
-            /*chai
+            const created_by = "Test user"
+            const issue_text = "Issue text"
+            
+            chai
             .request(server)
-            .post("/api/issues/projects")
-            .set("content-type", "application/json")
-            .send({
-                issue_text: "Issue text",
-                created_by: "Test user"
+            .get("/api/issues/projects")
+            .query({
+                created_by: created_by,
+                issue_text: issue_text 
             })
             .end(function (err, res){
                 assert.equal(res.status, 200);
-                //deleteId = res.body._id;
-                assert.equal(res.body.error, "required field(s) missing");
+                assert.equal(res.body[0].created_by, "Test user", `Expected first entry to be created by ${created_by}`);
+                assert.equal(res.body[0].issue_text, "Issue text", `Expected first entry to have the text ${created_by}`);
                 done();
-            }) */
-            assert.fail();
+            })
         })
 
         test("View issues on a project with multiple filters: GET request to /api/issues/{project}", function (done){
-            /*chai
+            const created_by = "Test user"
+            
+            chai
             .request(server)
-            .post("/api/issues/projects")
-            .set("content-type", "application/json")
-            .send({
-                issue_text: "Issue text",
-                created_by: "Test user"
+            .get("/api/issues/projects")
+            .query({
+                created_by: created_by
             })
             .end(function (err, res){
                 assert.equal(res.status, 200);
-                //deleteId = res.body._id;
-                assert.equal(res.body.error, "required field(s) missing");
+                assert.equal(res.body[0].created_by, "Test user", `Expected first entry to be created by ${created_by}`);
                 done();
-            }) */
-            assert.fail();
+            })
         })
     })
 
     suite('PUT-method', function() {
         test("Update one field on an issue: PUT request to /api/issues/{project}", function (done){
-            /*chai
+            const newIssueText = "Issue text has been updated"
+            
+            chai
             .request(server)
-            .post("/api/issues/projects")
-            .set("content-type", "application/json")
+            .put("/api/issues/projects")
             .send({
-                issue_text: "Issue text",
-                created_by: "Test user"
+                _id: "6522f86dc0ca09f397117acc",
+                issue_text: newIssueText
             })
             .end(function (err, res){
                 assert.equal(res.status, 200);
-                //deleteId = res.body._id;
-                assert.equal(res.body.error, "required field(s) missing");
+                assert.equal(res.body.result, "successfully updated");
+                assert.equal(res.body._id, "6522f86dc0ca09f397117acc");
                 done();
-            }) */
-            assert.fail();
+            })
         })
 
         test("Update multiple fields on an issue: PUT request to /api/issues/{project}", function (done){
-            /*chai
+            chai
             .request(server)
-            .post("/api/issues/projects")
-            .set("content-type", "application/json")
+            .put("/api/issues/projects")
             .send({
-                issue_text: "Issue text",
-                created_by: "Test user"
+                _id: "6522f86dc0ca09f397117acc",
+                issue_text: "Issue text has been updated again",
+                created_by: "Test user has been updated"
             })
             .end(function (err, res){
                 assert.equal(res.status, 200);
-                //deleteId = res.body._id;
-                assert.equal(res.body.error, "required field(s) missing");
+                assert.equal(res.body.result, "successfully updated");
+                assert.equal(res.body._id, "6522f86dc0ca09f397117acc");
                 done();
-            }) */
-            assert.fail();
+            })
         })
 
         test("Update an issue with missing _id: PUT request to /api/issues/{project}", function (done){
-            /*chai
+            chai
             .request(server)
-            .post("/api/issues/projects")
-            .set("content-type", "application/json")
+            .put("/api/issues/projects")
             .send({
                 issue_text: "Issue text",
                 created_by: "Test user"
             })
             .end(function (err, res){
                 assert.equal(res.status, 200);
-                //deleteId = res.body._id;
-                assert.equal(res.body.error, "required field(s) missing");
+                assert.equal(res.body.error, "missing _id");
                 done();
-            }) */
-            assert.fail();
+            })
         })
 
         test("Update an issue with no fields to update: PUT request to /api/issues/{project}", function (done){
-            /*chai
+            chai
             .request(server)
-            .post("/api/issues/projects")
-            .set("content-type", "application/json")
+            .put("/api/issues/projects")
             .send({
-                issue_text: "Issue text",
-                created_by: "Test user"
+                _id: "6522f86dc0ca09f397117acc"
             })
             .end(function (err, res){
                 assert.equal(res.status, 200);
-                //deleteId = res.body._id;
-                assert.equal(res.body.error, "required field(s) missing");
+                assert.equal(res.body.error, "no update field(s) sent");
                 done();
-            }) */
-            assert.fail();
+            })
         })
 
         test("Update an issue with an invalid _id: PUT request to /api/issues/{project}", function (done){
-            /*chai
+            chai
             .request(server)
-            .post("/api/issues/projects")
-            .set("content-type", "application/json")
+            .put("/api/issues/projects")
             .send({
-                issue_text: "Issue text",
-                created_by: "Test user"
+                _id: "invalid_6522f86dc0ca09f397117acc",
+                issue_text: "shouldn't work"
             })
             .end(function (err, res){
                 assert.equal(res.status, 200);
-                //deleteId = res.body._id;
-                assert.equal(res.body.error, "required field(s) missing");
+                assert.equal(res.body.error, "could not update");
                 done();
-            }) */
-            assert.fail();
+            })
         })
     })
 
     suite('DELETE-method', function() {
         test("Delete an issue: DELETE request to /api/issues/{project}", function (done){
-            /*chai
-            .request(server)
-            .post("/api/issues/projects")
-            .set("content-type", "application/json")
-            .send({
-                issue_text: "Issue text",
-                created_by: "Test user"
+            
+            chai
+                .request(server)
+                .post("/api/issues/projects")
+                .set("content-type", "application/json")
+                .send({
+                    issue_title: "to be deleted",
+                    issue_text: "delete me",
+                    created_by: "DELETEmaster",
+                })
+                .then(function (res) {
+                    // Assuming you have the ID of the newly created issue in the response body
+                    const idOfNewIssue = res.body._id;
+
+                    // Make the delete request with the ID
+                    return chai
+                    .request(server)
+                    .delete("/api/issues/projects")
+                    .send({
+                        _id: idOfNewIssue,
+                    });
+                })
+                .then(function (res) {
+                    assert.equal(res.status, 200);
+                    assert.equal(res.body.result, "successfully deleted");
+                    done();
+                })
+                .catch(function (err) {
+                    console.error(err);
+                    done(err);
+                });
             })
-            .end(function (err, res){
-                assert.equal(res.status, 200);
-                //deleteId = res.body._id;
-                assert.equal(res.body.error, "required field(s) missing");
-                done();
-            }) */
-            assert.fail();
-        })
 
         test("Delete an issue with an invalid _id: DELETE request to /api/issues/{project}", function (done){
-            /*chai
+            chai
             .request(server)
-            .post("/api/issues/projects")
-            .set("content-type", "application/json")
+            .delete("/api/issues/projects")
             .send({
-                issue_text: "Issue text",
-                created_by: "Test user"
+                _id: "invalid_6522f86dc0ca09f397117acc",
             })
             .end(function (err, res){
                 assert.equal(res.status, 200);
-                //deleteId = res.body._id;
-                assert.equal(res.body.error, "required field(s) missing");
+                assert.equal(res.body.error, "could not delete");
                 done();
-            }) */
-            assert.fail();
+            })
         })
 
         test("Delete an issue with missing _id: DELETE request to /api/issues/{project}", function (done){
-            /*chai
+            chai
             .request(server)
-            .post("/api/issues/projects")
-            .set("content-type", "application/json")
-            .send({
-                issue_text: "Issue text",
-                created_by: "Test user"
-            })
+            .delete("/api/issues/projects")
+            .send({})
             .end(function (err, res){
                 assert.equal(res.status, 200);
-                //deleteId = res.body._id;
-                assert.equal(res.body.error, "required field(s) missing");
+                assert.equal(res.body.error, "missing _id");
                 done();
-            }) */
-            assert.fail();
+            })
         })
     })
 });
