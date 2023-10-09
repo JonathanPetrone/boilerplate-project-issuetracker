@@ -1,7 +1,7 @@
 'use strict';
 const mongoose = require('mongoose');
 mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true });
-
+const ObjectId = mongoose.Types.ObjectId;
 
 const Schema = mongoose.Schema;
 
@@ -73,14 +73,14 @@ module.exports = function (app) {
         res.json(mappedData)
 
         } catch (error) {
-          res.json([]);
+        res.json([]);
         }
     })
     
     .post(async function (req, res){
       let project = req.params.project;
 
-      const { issue_title, issue_text, created_on, updated_on, created_by, assigned_to, open, status_text } = req.body
+      const { issue_title, issue_text, created_by, assigned_to, status_text } = req.body
       
       if (!issue_title || !issue_text || !created_by) {
         res.json({ error: "required field(s) missing"});
@@ -88,14 +88,14 @@ module.exports = function (app) {
       }
 
       const issueObj = new Issue ({
-        issue_title,
-        issue_text,
+        issue_title: issue_title || "",
+        issue_text: issue_text || "",
         created_on: new Date(),
         updated_on: new Date(),
-        created_by, 
-        assigned_to,
+        created_by: created_by || "",
+        assigned_to: assigned_to || "",
         open: true, 
-        status_text
+        status_text: status_text || "",
       });
       
       try {
@@ -154,11 +154,11 @@ module.exports = function (app) {
         issueData.assigned_to = assigned_to || issueData.assigned_to;
         issueData.status_text = status_text || issueData.status_text;
         issueData.updated_on = new Date();
-        issueData.open = open;
+        issueData.open = open; 
 
         try {
           await projectdata.save()
-          res.json({ result:"successfully updated", _id: _id});
+          res.json({ result: "successfully updated", _id: _id});
           return;
         } catch (err){
           res.json({ error: "could not update", _id: _id});

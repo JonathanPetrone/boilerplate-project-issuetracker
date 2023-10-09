@@ -90,8 +90,8 @@ suite('Functional Tests', function() {
             .request(server)
             .get("/api/issues/projects")
             .query({
-                created_by: created_by,
-                issue_text: issue_text 
+                issue_text: issue_text,
+                created_by: created_by
             })
             .end(function (err, res){
                 assert.equal(res.status, 200);
@@ -112,7 +112,7 @@ suite('Functional Tests', function() {
             })
             .end(function (err, res){
                 assert.equal(res.status, 200);
-                assert.equal(res.body[0].created_by, "Test user", `Expected first entry to be created by ${created_by}`);
+                assert.equal(res.body[0].created_by, "Test user", `Expected first entry to be created by Test user`);
                 done();
             })
         })
@@ -127,7 +127,8 @@ suite('Functional Tests', function() {
             .put("/api/issues/projects")
             .send({
                 _id: "6522f86dc0ca09f397117acc",
-                issue_text: newIssueText
+                issue_text: newIssueText,
+                open: false
             })
             .end(function (err, res){
                 assert.equal(res.status, 200);
