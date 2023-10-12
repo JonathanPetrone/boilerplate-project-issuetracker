@@ -47,7 +47,7 @@ module.exports = function (app) {
         { $match: {name: project} },
         { $unwind: "$issues"},
         _id != undefined 
-          ? { $match: {"issues._id": ObjectId(_id) }}
+          ? { $match: {"issues._id": new ObjectId(_id) }}
           : { $match: {} },
         open != undefined 
           ? { $match: {"issues.open": true }}
@@ -69,8 +69,10 @@ module.exports = function (app) {
           : { $match: {} } 
         ]);
 
+        
         let mappedData = data.map((item) => item.issues);
         res.json(mappedData)
+        
 
         } catch (error) {
         res.json([]);
@@ -112,7 +114,7 @@ module.exports = function (app) {
         }
       } catch (error) {
         console.error("Error saving new project:", error);
-        res.status(500).json({ error: "An error occurred while saving the project" });
+        res.json({ error: "An error occurred while saving the project" });
       }
     })
     
@@ -166,7 +168,6 @@ module.exports = function (app) {
         }
       } 
 
-      // change a post based on id & project provided
       
     })
     
@@ -177,38 +178,31 @@ module.exports = function (app) {
       console.log(_id);
 
       if (!_id){
-        return res.status(200).json({ error: 'missing _id' }); 
+        return res.json({ error: 'missing _id' }); 
       }
 
       try {
         const findProject = await Project.findOne({ name: project }).exec();
         if (!findProject) {
-          return res.status(200).json({ error: 'Project not found' });
-        } else {
-          console.log("project found")
-        }
+          return res.json({ error: 'Project not found' });
+        } 
 
-        // Locate the specific document within the array
         const issueToDelete = findProject.issues.find(issue => issue._id.toString() === _id);
 
         if (!issueToDelete) {
-          return res.send({ error: 'could not delete', '_id': _id });
+          return res.json({ error: 'could not delete', '_id': _id });
         }
 
-        // Remove the document from the array
         findProject.issues.pull({ _id: issueToDelete._id });
 
-        // Save the parent document to apply the changes
         await findProject.save();
 
-        res.send({ result: 'successfully deleted', '_id': _id });
+        res.json({ result: 'successfully deleted', '_id': _id });
 
       } catch (error) {
         console.error(error);
-        res.send({ error: 'could not delete', '_id': _id });
+        res.json({ error: 'could not delete', '_id': _id });
       }
-
-      // delete a post based on id & project provided
       
     });  
 };

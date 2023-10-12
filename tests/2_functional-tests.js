@@ -2,6 +2,9 @@ const chaiHttp = require('chai-http');
 const chai = require('chai');
 const assert = chai.assert;
 const server = require('../server');
+const mongoose = require('mongoose');
+mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+const ObjectId = mongoose.Types.ObjectId;
 
 chai.use(chaiHttp);
 
