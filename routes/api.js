@@ -175,7 +175,7 @@ module.exports = function (app) {
       let project = req.params.project;
       const issueId = req.params.id;
       const {_id} = req.body;
-      console.log(_id);
+      // console.log(_id);
 
       if (!_id){
         return res.json({ error: 'missing _id' }); 
